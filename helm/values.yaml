@@ -1,0 +1,43 @@
+nameOverride: "envoy-test"
+fullnameOverride: "envoy-test"
+serviceAccount:
+  create: true
+  annotations: {}
+  name: "envoy-test"
+monitoring:
+  enabled: true
+
+service-a:
+  replicaCount: 1
+  image: service-a:latest # local docker
+  pullPolicy: IfNotPresent
+
+  deployment:
+    configMap: "service-a-config"
+  service:
+    name: service-a
+    type: ClusterIP
+    externalPort: 80
+  ingress:
+    enabled: true
+    path: /service-a
+  downstreamService:
+    url: http://envoy-test-service-b
+  resources: {}
+
+
+
+service-b:
+  replicaCount: 1
+  image: service-b:latest # local docker
+  pullPolicy: IfNotPresent
+  deployment:
+    configMap: "service-b-config"
+  service:
+    name: service-b
+    type: ClusterIP
+    externalPort: 80
+  ingress:
+    enabled: true
+    path: /service-b
+  resources: {}

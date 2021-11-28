@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "service.fullname" . }}
+  labels:
+    app: {{ template "service.fullname" . }}
+    helm.sh/chart: {{ include "service.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    sidecar-gateway: "envoy"
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/metrics"
+    prometheus.io/port: "8081"
+    # service metrics: port=8081 path=/metrics
+    # envoy metrics: port=9901 path=/stats/prometheus
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "service.fullname" . }}
+      release: {{ .Release.Name }}
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "service.fullname" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: envoy
+          image: envoyproxy/envoy:v1.20.0
+          imagePullPolicy: {{ .Values.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 10000 # matches socket_address.port_value in envoy.yaml
+            - name: envoy-metrics
+              containerPort: 9901
+          env:
+            - name: DOWNSTREAM_SERVICE
+              value: {{ .Values.downstreamService.url }}
+          args:
+            - envoy
+            - -c
+            - /config/envoy.yaml
+          volumeMounts:
+            - mountPath: /config/
+              name: config-volume
+        - name: service
+          image: {{ .Values.image }}
+          imagePullPolicy: {{ .Values.pullPolicy }}
+          ports:
+            # 8080 port is not exposed on intend. will only be accessed by
+            # envoy locally (127.0.0.1:8080). See: envoy.yaml
+            - name: service-metrics
+              containerPort: 8081
+          env:
+            - name: DOWNSTREAM_SERVICE
+              value: {{ .Values.downstreamService.url }}
+            - name: SERVICE_PORT
+              value: "8080"
+            - name: METRICS_PORT
+              value: "8081"
+          startupProbe:
+            httpGet:
+              path: /health/readiness
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /health/liveness
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 1
+          readinessProbe:
+            httpGet:
+              path: /health/readiness
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 1
+      volumes:
+        - name: config-volume
+          configMap:
+            # Provide the name of the ConfigMap containing the files you want
+            # to add to the container
+            name: {{ .Values.deployment.configMap }}
