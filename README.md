@@ -2,8 +2,8 @@
 
 ## Prerequisites
 
-[Common tools](../doc/MACOS-COMMON-TOOLS.md)
-[Create K8S cluster with KinD](../doc/CREATE-K8S-CLUSTER-KIND.md)
+[Common tools](doc/MACOS-COMMON-TOOLS.md)
+[Create K8S cluster with KinD](doc/CREATE-K8S-CLUSTER-KIND.md)
 
 ## Build
 
