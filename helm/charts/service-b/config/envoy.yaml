@@ -21,24 +21,24 @@ static_resources:
                 route_config:
                   name: ingress_route
                   virtual_hosts:
-                    - name: local_service
+                    - name: service-b
                       domains:
                         - "*"
                       routes:
                         - match:
                             prefix: "/"
                           route:
-                            cluster: local_service
+                            cluster: service-b
                 http_filters:
                   - name: envoy.filters.http.router
 
   clusters:
-    - name: local_service
+    - name: service-b
       connect_timeout: 0.25s
       type: strict_dns
       lb_policy: round_robin
       load_assignment:
-        cluster_name: local_service
+        cluster_name: service-b
         endpoints:
           - lb_endpoints:
               - endpoint:
