@@ -15,7 +15,7 @@ service:
   externalPort: 80
 
 downstreamService:
-  url: http://envoy-test-service-b
+  url: http://envoy-playground-service-b
 
 ingress:
   enabled: false

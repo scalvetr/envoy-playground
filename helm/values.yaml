@@ -1,9 +1,9 @@
-nameOverride: "envoy-test"
-fullnameOverride: "envoy-test"
+nameOverride: "envoy-playground"
+fullnameOverride: "envoy-playground"
 serviceAccount:
   create: true
   annotations: {}
-  name: "envoy-test"
+  name: "envoy-playground"
 monitoring:
   enabled: true
 
@@ -22,7 +22,7 @@ service-a:
     enabled: true
     path: /service-a
   downstreamService:
-    url: http://envoy-test-service-b
+    url: http://envoy-playground-service-b
   resources: {}
 
 

@@ -1,16 +1,17 @@
 {{ if .Values.monitoring.enabled }}
 apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
+kind: PodMonitor
 metadata:
   labels:
-    prometheus: kube-prometheus
-  name: prometheus-envoy
+    prometheus: "true" # matches the value added in helm-prometheus.yml
+    release: {{ .Release.Name }}
+  name: kube-prometheus-{{ .Release.Name }}
 spec:
   selector:
     matchLabels:
-      sidecar-gateway: "envoy"
-  endpoints:
-    - targetPort: envoy-metrics
+      release: {{ .Release.Name }}
+  podMetricsEndpoints:
+    - port: envoy-metrics
       interval: 30s
       path: /stats/prometheus
-{{ end }}
+  {{ end }}

@@ -3,3 +3,13 @@ grafana:
     server:
       root_url: http://localhost/grafana/
       serve_from_sub_path: true
+
+    #prometheus:
+    #prometheus.yml:
+    #web.external-url: http://localhost/prometheus/
+    #web.route-prefix: "/prometheus"
+prometheus:
+  prometheusSpec:
+    podMonitorSelector:
+      matchLabels:
+        prometheus: "true"

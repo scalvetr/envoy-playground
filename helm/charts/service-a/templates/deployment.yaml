@@ -7,13 +7,6 @@ metadata:
     helm.sh/chart: {{ include "service.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
-    sidecar-gateway: "envoy"
-  annotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/path: "/metrics"
-    prometheus.io/port: "8081"
-    # service metrics: port=8081 path=/metrics
-    # envoy metrics: port=9901 path=/stats/prometheus
 spec:
   selector:
     matchLabels:
@@ -25,6 +18,11 @@ spec:
       labels:
         app: {{ template "service.fullname" . }}
         release: {{ .Release.Name }}
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "8081"
+        # service metrics: port=8081 path=/metrics
+        # envoy metrics: port=9901 path=/stats/prometheus
     spec:
       containers:
         - name: envoy
@@ -35,9 +33,6 @@ spec:
               containerPort: 10000 # matches socket_address.port_value in envoy.yaml
             - name: envoy-metrics
               containerPort: 9901
-          env:
-            - name: DOWNSTREAM_SERVICE
-              value: {{ .Values.downstreamService.url }}
           args:
             - envoy
             - -c

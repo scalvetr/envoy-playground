@@ -14,7 +14,7 @@ brew install kind@0.11.1
 
 ## Create the cluster
 ```shell
-export CLUSTER_NAME="envoy-test";
+export CLUSTER_NAME="envoy-playground";
 cat <<EOF | kind create cluster --name ${CLUSTER_NAME}  --config=-
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
@@ -43,24 +43,24 @@ kubectl wait --namespace ingress-nginx \
   --timeout=90s
 
 # check connectivity
-kubectl cluster-info --context kind-envoy-test
+kubectl cluster-info --context kind-envoy-playground
 
-docker port envoy-test-control-plane
+docker port envoy-playground-control-plane
 # 6443/tcp -> 127.0.0.1:55313
 
 kind get clusters
-kubectl config use-context kind-envoy-test
+kubectl config use-context kind-envoy-playground
 kubectl cluster-info
 ```
 
 Cluster deletion
 
 ```shell
-kind delete cluster --name=envoy-test
+kind delete cluster --name=envoy-playground
 # or
-docker stop envoy-test-control-plane
-docker rm envoy-test-control-plane
+docker stop envoy-playground-control-plane
+docker rm envoy-playground-control-plane
 
-# check there's no "envoy-test-control-plane" container
+# check there's no "envoy-playground-control-plane" container
 docker container ls
 ```
